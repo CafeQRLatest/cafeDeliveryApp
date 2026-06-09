@@ -1,5 +1,5 @@
 // middleware.js
-// Protects /home, /orders, /profile, /restaurant, /cart, /checkout, /track.
+// Protects /home, /orders, /account, /[clientId] (store menu + checkout).
 // Unauthenticated requests are redirected to /login.
 // Public routes: /login, /signup, /api/auth/*
 
