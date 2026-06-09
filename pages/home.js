@@ -1,8 +1,7 @@
 // pages/home.js
-// ─── Home — Client (Store / Business) Listing ─────────────────────────────
+// Store / Business listing page.
 // Fetches all clients with delivery enabled from /api/clients and
-// renders them as tappable cards.  Tapping a card navigates to
-// /[clientId] (the store’s menu page, built in Step 4).
+// renders them as tappable cards. Tapping navigates to /[clientId].
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/router';
@@ -10,7 +9,6 @@ import Head from 'next/head';
 import { FiSearch, FiX, FiLogOut, FiClock, FiShoppingBag, FiWifi } from 'react-icons/fi';
 import { apiFetch } from '@/lib/api';
 
-// ─── Skeleton card shown while loading ────────────────────────────────────
 function SkeletonCard() {
   return (
     <div className="bg-white rounded-2xl border border-stone-100 p-4 flex items-center gap-4 animate-pulse">
@@ -27,7 +25,6 @@ function SkeletonCard() {
   );
 }
 
-// ─── Logo initial avatar (shown when no logoUrl) ────────────────────────
 function LogoAvatar({ name, logoUrl }) {
   if (logoUrl) {
     return (
@@ -40,7 +37,6 @@ function LogoAvatar({ name, logoUrl }) {
     );
   }
   const initial = (name || '?').trim().charAt(0).toUpperCase();
-  // Pick a deterministic background colour from a small palette
   const colours = ['#F97316','#0EA5E9','#8B5CF6','#10B981','#F59E0B','#EF4444'];
   const bg = colours[(name || '').charCodeAt(0) % colours.length];
   return (
@@ -53,7 +49,6 @@ function LogoAvatar({ name, logoUrl }) {
   );
 }
 
-// ─── Individual client card ─────────────────────────────────────────────
 function ClientCard({ client, onClick }) {
   return (
     <button
@@ -68,7 +63,6 @@ function ClientCard({ client, onClick }) {
       <LogoAvatar name={client.name} logoUrl={client.logoUrl} />
 
       <div className="flex-1 min-w-0">
-        {/* Name + open/closed chip */}
         <div className="flex items-center gap-2 mb-0.5">
           <span className="font-bold text-stone-900 text-sm truncate">{client.name}</span>
           {!client.isOpen && (
@@ -78,14 +72,12 @@ function ClientCard({ client, onClick }) {
           )}
         </div>
 
-        {/* Category badge */}
         {client.category && (
-          <span className="inline-block text-[11px] font-medium bg-brand-orange-light text-brand-orange-dark px-2 py-0.5 rounded-full mb-1.5">
+          <span className="inline-block text-[11px] font-medium bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full mb-1.5">
             {client.category}
           </span>
         )}
 
-        {/* Meta row — delivery time + min order */}
         <div className="flex items-center gap-3 text-[11px] text-stone-400">
           {client.deliveryTimeMinutes != null && (
             <span className="flex items-center gap-1">
@@ -96,13 +88,12 @@ function ClientCard({ client, onClick }) {
           {client.minOrderAmount != null && (
             <span className="flex items-center gap-1">
               <FiShoppingBag size={11} />
-              Min ₹{client.minOrderAmount}
+              Min &#x20B9;{client.minOrderAmount}
             </span>
           )}
         </div>
       </div>
 
-      {/* Chevron */}
       <svg className="w-4 h-4 text-stone-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
       </svg>
@@ -110,7 +101,6 @@ function ClientCard({ client, onClick }) {
   );
 }
 
-// ─── Main page ─────────────────────────────────────────────────────────
 export default function HomePage() {
   const router = useRouter();
 
@@ -120,7 +110,6 @@ export default function HomePage() {
   const [search,   setSearch]   = useState('');
   const [userName, setUserName] = useState('');
 
-  // Load user name from localStorage (set by signup/login)
   useEffect(() => {
     try {
       const stored = localStorage.getItem('cafeqr_user');
@@ -146,7 +135,6 @@ export default function HomePage() {
 
   useEffect(() => { fetchClients(); }, []);
 
-  // Client-side search filter (name + category)
   const filtered = useMemo(() => {
     if (!search.trim()) return clients;
     const q = search.trim().toLowerCase();
@@ -157,25 +145,23 @@ export default function HomePage() {
   }, [clients, search]);
 
   async function handleLogout() {
-    try {
-      await fetch('/api/auth/logout', { method: 'POST' });
-    } catch {}
+    try { await fetch('/api/auth/logout', { method: 'POST' }); } catch {}
     router.replace('/login');
   }
 
   return (
     <>
-      <Head><title>Cafe QR Delivery — Browse Stores</title></Head>
+      <Head><title>Cafe QR Delivery - Browse Stores</title></Head>
 
       <div className="min-h-screen bg-stone-50 pb-24">
 
-        {/* ─ Header ───────────────────────────────────────────────── */}
+        {/* Header */}
         <div className="bg-white border-b border-stone-100 px-5 pt-12 pb-4 sticky top-0 z-10">
           <div className="flex items-center justify-between mb-3">
             <div>
               <h1 className="text-xl font-bold text-stone-900">Cafe QR Delivery</h1>
               {userName && (
-                <p className="text-xs text-stone-400 mt-0.5">Hello, {userName.split(' ')[0]} 👋</p>
+                <p className="text-xs text-stone-400 mt-0.5">Hello, {userName.split(' ')[0]} &#x1F44B;</p>
               )}
             </div>
             <button
@@ -194,7 +180,7 @@ export default function HomePage() {
               type="search"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder="Search stores or categories…"
+              placeholder="Search stores or categories..."
               className="bg-transparent flex-1 text-sm text-stone-800 outline-none placeholder-stone-400"
             />
             {search && (
@@ -205,10 +191,9 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* ─ Content ────────────────────────────────────────────────── */}
+        {/* Content */}
         <div className="px-4 pt-4 space-y-3">
 
-          {/* Loading skeletons */}
           {loading && (
             <>
               <SkeletonCard />
@@ -217,7 +202,6 @@ export default function HomePage() {
             </>
           )}
 
-          {/* Error state */}
           {!loading && error && (
             <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
               <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center">
@@ -236,7 +220,6 @@ export default function HomePage() {
             </div>
           )}
 
-          {/* Empty search state */}
           {!loading && !error && filtered.length === 0 && clients.length > 0 && (
             <div className="flex flex-col items-center justify-center py-20 gap-2 text-center">
               <span className="text-4xl">&#x1F50D;</span>
@@ -245,16 +228,14 @@ export default function HomePage() {
             </div>
           )}
 
-          {/* No clients at all */}
           {!loading && !error && clients.length === 0 && (
             <div className="flex flex-col items-center justify-center py-20 gap-2 text-center">
-              <span className="text-4xl">🏪</span>
+              <span className="text-4xl">&#x1F3EA;</span>
               <p className="font-semibold text-stone-700 text-sm">No stores available yet</p>
               <p className="text-stone-400 text-xs">Check back soon</p>
             </div>
           )}
 
-          {/* Client cards */}
           {!loading && !error && filtered.map(client => (
             <ClientCard
               key={client.id}

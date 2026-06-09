@@ -5,16 +5,16 @@
 // Cafe QR Java backend and returns a sanitised list to the app.
 //
 // Flow:
-//   Browser/App  →  GET /api/clients
-//              →  backendFetch GET /v1/clients?deliveryEnabled=true
-//              ←  sanitised JSON array
+//   Browser/App  -> GET /api/clients
+//              -> backendFetch GET /v1/clients?deliveryEnabled=true
+//              <- sanitised JSON array
 //
 // Auth: requires a valid delivery_session cookie.
 // Returns 401 if the session is missing or invalid.
 //
 // Response shape (array of):
 //   {
-//     id:                  string  (UUID — used as [clientId] route param)
+//     id:                  string  (UUID - used as [clientId] route param)
 //     name:                string
 //     description:         string | null
 //     logoUrl:             string | null
@@ -32,16 +32,14 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // ─ Auth guard ───────────────────────────────────────────────────
+  // Auth guard
   const session = getSessionFromReq(req);
   if (!session) {
     return res.status(401).json({ error: 'Unauthorised' });
   }
 
   try {
-    // ─ Proxy to Java backend ───────────────────────────────────────
-    // The backend exposes clients (tenants) via /v1/clients.
-    // We request only those with online delivery enabled.
+    // Proxy to Java backend
     const raw = await backendFetch(
       '/v1/clients',
       {
@@ -61,7 +59,7 @@ export default async function handler(req, res) {
         ? raw.content
         : [];
 
-    // ─ Sanitise — only expose fields the app needs ─────────────────────
+    // Sanitise - only expose fields the app needs
     const clients = list.map(c => ({
       id:                  c.id          || c.clientId || null,
       name:                c.name        || c.clientName || '',
@@ -71,7 +69,7 @@ export default async function handler(req, res) {
       minOrderAmount:      c.minOrderAmount      != null ? Number(c.minOrderAmount)      : null,
       deliveryTimeMinutes: c.deliveryTimeMinutes != null ? Number(c.deliveryTimeMinutes) : null,
       isOpen:              c.isOpen != null ? Boolean(c.isOpen) : true,
-    })).filter(c => c.id); // drop any entries without an id
+    })).filter(c => c.id);
 
     return res.status(200).json(clients);
   } catch (err) {
